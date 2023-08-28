@@ -1,24 +1,10 @@
-import React from 'react';
-import logo from './logo.svg';
 import './App.css';
-
+import ScoreTable from './ScoreTable';
 function App() {
+  const songList = [{id:1, name:"aiueo", crown:1, rank:1}, {id:2, name:"kakikukeko", crown:0, rank:2}, {id:3, name:"bakikukeko", crown:3, rank:7}];
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <ScoreTable songList={songList}></ScoreTable>
     </div>
   );
 }
