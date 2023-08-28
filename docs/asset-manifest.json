@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/TaikoScoreTool/static/css/main.e6c13ad2.css",
+    "main.js": "/TaikoScoreTool/static/js/main.fc2cfca3.js",
+    "index.html": "/TaikoScoreTool/index.html",
+    "main.e6c13ad2.css.map": "/TaikoScoreTool/static/css/main.e6c13ad2.css.map",
+    "main.fc2cfca3.js.map": "/TaikoScoreTool/static/js/main.fc2cfca3.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.fc2cfca3.js"
+  ]
+}
