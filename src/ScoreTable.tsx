@@ -10,6 +10,7 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
 import Paper from '@mui/material/Paper';
+import { Button } from '@mui/material';
 
 interface SongData {
   id: number;
@@ -25,11 +26,12 @@ interface Props {
 const CROWN = ["未クリア", "クリア", "フルコンボ", "ドンダフルコンボ"];
 const RANK = ["ランクなし", "粋1", "粋2", "粋3", "雅1", "雅2", "雅3", "極"];
 
-const ScoreTable: React.FC<Props> = ({ songList }) => {
+const ScoreTable: React.FC<Props> = (props) => {
   const [filterCrown, setFilterCrown] = useState<boolean[]>(new Array(4).fill(true));
-  const [filterRank, setFilterRank] = useState<boolean[]>(new Array(8).fill(true));
+  const [filterRank, setFilterRank] = useState<boolean[]>(new Array(9).fill(true));
   const [sortBy, setSortBy] = useState<'id' | 'name' | 'crown' | 'rank'>('id');
   const [sortDescending, setSortDescending] = useState<boolean>(false);
+  const [songList, setSongList] = useState<{id:number, name:string, crown:number, rank:number}[]>([]);
 
   const toggleFilterCrown = (index: number) => {
     const updatedFilters = [...filterCrown];
@@ -46,6 +48,26 @@ const ScoreTable: React.FC<Props> = ({ songList }) => {
   const toggleSortDescending = () => {
     setSortDescending(prev => !prev);
   };
+
+  const copyScript = () => {
+    navigator.clipboard.writeText('javascript:void(function(){var s=document.createElement("script");s.type="text/javascript";s.src="https://raw.githubusercontent.com/netyo715/TaikoScoreTool/develop/getScore.json";document.head.appendChild(s);}());').then(
+    () => {alert("copy success");},
+    () => {alert("copy failed");}
+    );
+  }
+
+  const inputScore = () => {
+    const data = prompt("データを入力");
+    if (!data){
+      return;
+    }
+    var result = [];
+    const parsedJson: {songName: string, isUra: boolean, crown: number, rank: number}[] = JSON.parse(data);
+    for (var i=0; i<parsedJson.length; i++){
+      result.push({id: i, name: parsedJson[i].songName, crown: parsedJson[i].crown, rank: parsedJson[i].rank});
+    }
+    setSongList(result);
+  }
 
   const sortedSongs = songList
     .filter(song => filterCrown[song.crown] && filterRank[song.rank])
@@ -64,6 +86,11 @@ const ScoreTable: React.FC<Props> = ({ songList }) => {
 
   return (
     <div>
+      <div>
+        <Button onClick={copyScript}>ブックマークレットをコピー</Button>
+        <p>適当なWebページをブックマークに登録し、URLをコピーしたブックマークレットに置き換えてください</p>
+        <Button onClick={inputScore}>スコア貼り付け</Button>
+      </div>
       <div>
         {filterCrown.map((checked, index) => (
           <label key={index}>
