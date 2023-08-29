@@ -50,7 +50,7 @@ const ScoreTable: React.FC<Props> = (props) => {
   };
 
   const copyScript = () => {
-    navigator.clipboard.writeText('javascript:void(function(){var s=document.createElement("script");s.type="text/javascript";s.src="https://raw.githubusercontent.com/netyo715/TaikoScoreTool/develop/getScore.json";document.head.appendChild(s);}());').then(
+    navigator.clipboard.writeText('javascript:void(async function(){results=await async function(){for(var g=[],e=1;e<=8;e++){var t="https://donderhiroba.jp/score_list.php?genre="+e.toString();await fetch(t).then(e=>e.text()).then(e=>{const t=new DOMParser,n=t.parseFromString(e,"text/html");for(var a=n.getElementById("songList").getElementsByClassName("contentBox"),r=["played","silver","gold","donderfull"],s=0;s<a.length;s++){var o=a[s],l={songName:"",isUra:!1,crown:0,rank:0};l.songName=o.getElementsByClassName("songName")[0].textContent;for(var c=(o.getElementsByClassName("songNameArea")[0].classList.contains("ura")?(l.isUra=!0,o.getElementsByClassName("crown")[0]):o.getElementsByClassName("crown")[3]).getAttribute("src").replace("image/sp/640/crown_button_","").replace("_640.png",""),i=0;i<r.length;i++)c.includes(r[i])&&(l.crown=i);for(i=0;i<=8;i++)c.includes(i.toString())&&(l.rank=i);g.push(l)}}).catch(e=>{console.log(e)})}return g}();var e=document.createElement("button");e.textContent="クリップボードにコピー",e.addEventListener("click",function(){navigator.clipboard.writeText(JSON.stringify(results,null,"")).then(()=>{alert("copy success")},()=>{alert("copy failed")})});var t=document.getElementsByTagName("img")[0];document.body.insertBefore(e,t)}());').then(
     () => {alert("copy success");},
     () => {alert("copy failed");}
     );

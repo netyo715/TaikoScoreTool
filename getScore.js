@@ -1,3 +1,4 @@
+javascript:void(async function(){
 async function getScore(){
     var results = [];
     for (var genre=1; genre<=8; genre++){
@@ -58,3 +59,4 @@ copyButton.addEventListener("click", function(){
 });
 var headerImg = document.getElementsByTagName("img")[0];
 document.body.insertBefore(copyButton, headerImg);
+}());
