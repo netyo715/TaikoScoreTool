@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Checkbox from '@mui/material/Checkbox';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
@@ -32,6 +32,16 @@ const ScoreTable: React.FC<Props> = (props) => {
   const [sortBy, setSortBy] = useState<'id' | 'name' | 'crown' | 'rank'>('id');
   const [sortDescending, setSortDescending] = useState<boolean>(false);
   const [songList, setSongList] = useState<{id:number, name:string, crown:number, rank:number}[]>([]);
+
+  useEffect(() => {
+    const storageData = localStorage.getItem("songList");
+    if (storageData){
+      setSongList(JSON.parse(storageData));
+      console.log("get localstorage score");
+    }else{
+      console.log("localstorage score not found.");
+    }
+  }, []);
 
   const toggleFilterCrown = (index: number) => {
     const updatedFilters = [...filterCrown];
@@ -67,6 +77,8 @@ const ScoreTable: React.FC<Props> = (props) => {
       result.push({id: i, name: parsedJson[i].songName, crown: parsedJson[i].crown, rank: parsedJson[i].rank});
     }
     setSongList(result);
+    localStorage.setItem("songList", JSON.stringify(result));
+    console.log("set localstorage score");
   }
 
   const sortedSongs = songList
