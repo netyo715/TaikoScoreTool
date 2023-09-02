@@ -3,6 +3,7 @@ import './App.css';
 import ScoreTable from './ScoreTable';
 import SongInfoJson from "./songInfo.json";
 import { Button, Checkbox, FormControlLabel, Radio, RadioGroup } from '@mui/material';
+import CopyScriptButton from './CopyScriptButton';
 
 type JsonSongScore = {
   name: string;
@@ -14,6 +15,8 @@ type JsonSongScore = {
 type SongScore = {
   id: number;
   name: string;
+  mainGenre: number;
+  genre: number[];
   difficulty: number;
   crown: number;
   rank: number;
@@ -33,9 +36,10 @@ const RANK = ["ランクなし", "粋1", "粋2", "粋3", "雅1", "雅2", "雅3",
 
 function App() {
   const [scoreArray, setScoreArray] = useState<SongScore[]>([]);
+  const [sortedScoreArray, setSortedScoreArray] = useState<SongScore[]>([]);
   const [songInfoArray, setSongInfoArray] = useState<SongInfo[]>([]);
 
-  const [filterDifficulty, setFilterDifficulty] = useState<boolean[]>(new Array(11).fill(true));
+  const [filterDifficulty, setFilterDifficulty] = useState<boolean[]>(new Array(10).fill(true));
   const [filterCrown, setFilterCrown] = useState<boolean[]>(new Array(4).fill(true));
   const [filterRank, setFilterRank] = useState<boolean[]>(new Array(9).fill(true));
   const [sortBy, setSortBy] = useState<'id' | 'name' | 'crown' | 'rank' | 'difficulty'>('id');
@@ -71,24 +75,41 @@ function App() {
     }
   }, []);
 
-  // ブックマークレットコピー
-  const copyScript = () => {
-    navigator.clipboard.writeText('javascript:void(async function(){results=await async function(){for(var g=[],e=1;e<=8;e++){var t="https://donderhiroba.jp/score_list.php?genre="+e.toString();await fetch(t).then(e=>e.text()).then(e=>{const t=new DOMParser,n=t.parseFromString(e,"text/html");for(var a=n.getElementById("songList").getElementsByClassName("contentBox"),r=["played","silver","gold","donderfull"],s=0;s<a.length;s++){var o=a[s],l={name:"",isUra:!1,crown:0,rank:0};l.name=o.getElementsByClassName("songName")[0].textContent;for(var c=(o.getElementsByClassName("songNameArea")[0].classList.contains("ura")?(l.isUra=!0,o.getElementsByClassName("crown")[0]):o.getElementsByClassName("crown")[3]).getAttribute("src").replace("image/sp/640/crown_button_","").replace("_640.png",""),i=0;i<r.length;i++)c.includes(r[i])&&(l.crown=i);for(i=0;i<=8;i++)c.includes(i.toString())&&(l.rank=i);g.push(l)}}).catch(e=>{console.log(e)})}return g}();var e=document.createElement("button");e.textContent="クリップボードにコピー",e.addEventListener("click",function(){navigator.clipboard.writeText(JSON.stringify(results,null,"")).then(()=>{alert("copy success")},()=>{alert("copy failed")})});var t=document.getElementsByTagName("img")[0];document.body.insertBefore(e,t)}());').then(
-    () => {alert("copy success");},
-    () => {alert("copy failed");}
-    );
-  }
+  useEffect(() => {
+    setSortedScoreArray(scoreArray
+      .filter(song => filterDifficulty[song.difficulty-1] && filterCrown[song.crown] && filterRank[song.rank])
+      .sort((a, b) => {
+        const sortMultiplier = sortDescending ? -1 : 1;
+        if (sortBy === 'id') {
+          return sortMultiplier * (a.id - b.id);
+        } else if (sortBy === 'name') {
+          return sortMultiplier * a.name.localeCompare(b.name);
+        } else if (sortBy === 'crown') {
+          return sortMultiplier * (a.crown - b.crown);
+        } else if (sortBy === 'difficulty') {
+          return sortMultiplier * (a.difficulty - b.difficulty);
+        } else {
+          return sortMultiplier * (a.rank - b.rank);
+        }
+      }));
+  }, [scoreArray, filterDifficulty, filterCrown, filterRank, sortBy, sortDescending]);
 
   // 入力からデータ読み込み
   const inputScore = () => {
     const jsonData = prompt("データを入力");
     if (!jsonData) {return;}
-    const inputScoreArray: JsonSongScore[] = JSON.parse(jsonData);
+    const inputScoreArray: JsonSongScore[][] = JSON.parse(jsonData);
     var inputScoreMap: {[key:string]: JsonSongScore}[] = [{}, {}];
-    inputScoreArray.forEach((value) => {
-      const idx = value.isUra ? 1: 0;
-      inputScoreMap[idx][value.name] = value;
-    });
+    for (let i = 0; i < 8; i++) {
+      inputScoreArray[i].forEach((value) => {
+        const idx = value.isUra ? 1: 0;
+        // ナムコ以外のエンジェルドリームはアイマス版として扱う
+        if(i!=5 && value.name=="エンジェル ドリーム"){
+          value.name += "(アイマス)";
+        }
+        inputScoreMap[idx][value.name] = value;
+      });
+    }
     var _scoreArray: SongScore[] = [];
     songInfoArray.forEach((value) => {
       const idx = value.isUra ? 1: 0;
@@ -102,6 +123,8 @@ function App() {
         id: value.id,
         name: value.name + (value.isUra ? " (裏)" : ""),
         difficulty: value.difficulty,
+        mainGenre: value.mainGenre,
+        genre: value.genre,
         crown: crown,
         rank: rank,
       });
@@ -135,36 +158,24 @@ function App() {
   };
   // 以上ソート/フィルター
 
-  const sortedScoreArray = scoreArray
-    .filter(song => filterDifficulty[song.difficulty] && filterCrown[song.crown] && filterRank[song.rank])
-    .sort((a, b) => {
-      const sortMultiplier = sortDescending ? -1 : 1;
-      if (sortBy === 'id') {
-        return sortMultiplier * (a.id - b.id);
-      } else if (sortBy === 'name') {
-        return sortMultiplier * a.name.localeCompare(b.name);
-      } else if (sortBy === 'crown') {
-        return sortMultiplier * (a.crown - b.crown);
-      } else if (sortBy === 'difficulty') {
-        return sortMultiplier * (a.difficulty - b.difficulty);
-      } else {
-        return sortMultiplier * (a.rank - b.rank);
-      }
-    });
+  const alertRandomSong = () => {
+    const song = sortedScoreArray[Math.floor(Math.random() * sortedScoreArray.length)];
+    alert(`${song.name} クリア: ${song.crown} ランク: ${song.rank}`);
+  };
 
   return (
     <div className="App">
       <p>「このコンテンツはファンメイドコンテンツです。ファンメイドコンテンツポリシー（<a href="https://taiko-ch.net/ip_policy/">https://taiko-ch.net/ip_policy/</a>）のもと制作されています。」</p>
       <div>
-        <Button onClick={copyScript}>ブックマークレットをコピー</Button>
-        <p>適当なWebページをブックマークに登録し、URLをコピーしたブックマークレットに置き換えてください</p>
-        <Button onClick={inputScore}>スコア貼り付け</Button>
+        <CopyScriptButton />
+        <Button variant="contained" onClick={inputScore}>スコア貼り付け</Button>
+        <Button variant="outlined">使い方</Button>
       </div>
       <div>
         {filterDifficulty.map((checked, index) => (
           <label key={index}>
             <Checkbox checked={checked} onChange={() => toggleFilterDifficulty(index)} />
-            {index}
+            {index+1}
           </label>
         ))}
       </div>
@@ -195,7 +206,8 @@ function App() {
         control={<Checkbox checked={sortDescending} onChange={toggleSortDescending} />}
         label="降順にする"
       />
-      <ScoreTable scoreArray={sortedScoreArray}></ScoreTable>
+      <Button variant="contained" onClick={alertRandomSong}>ランダム選曲</Button>
+      <ScoreTable scoreArray={sortedScoreArray} />
     </div>
   );
 }
