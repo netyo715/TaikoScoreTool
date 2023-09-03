@@ -2,8 +2,20 @@ import React, { useEffect, useState } from 'react';
 import './App.css';
 import ScoreTable from './ScoreTable';
 import SongInfoJson from "./songInfo.json";
-import { Button, Checkbox, FormControlLabel, Radio, RadioGroup } from '@mui/material';
+import { Button, Checkbox, FormControlLabel, Radio, RadioGroup, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import CopyScriptButton from './CopyScriptButton';
+
+import crown0 from "./image/crown_0.png";
+import crown1 from  "./image/crown_1.png";
+import crown2 from  "./image/crown_2.png";
+import crown3 from  "./image/crown_3.png";
+import rank2 from "./image/rank_2.png";
+import rank3 from "./image/rank_3.png";
+import rank4 from "./image/rank_4.png";
+import rank5 from "./image/rank_5.png";
+import rank6 from "./image/rank_6.png";
+import rank7 from "./image/rank_7.png";
+import rank8 from "./image/rank_8.png";
 
 type JsonSongScore = {
   name: string;
@@ -33,6 +45,9 @@ type SongInfo = {
 
 const CROWN = ["未クリア", "クリア", "フルコンボ", "ドンダフルコンボ"];
 const RANK = ["ランクなし", "粋1", "粋2", "粋3", "雅1", "雅2", "雅3", "極"];
+
+const CROWN_IMAGE = [crown0, crown1, crown2, crown3];
+const RANK_IMAGE = [rank2, rank3, rank4, rank5, rank6, rank7, rank8];
 
 function App() {
   const [scoreArray, setScoreArray] = useState<SongScore[]>([]);
@@ -166,34 +181,37 @@ function App() {
   return (
     <div className="App">
       <p>「このコンテンツはファンメイドコンテンツです。ファンメイドコンテンツポリシー（<a href="https://taiko-ch.net/ip_policy/">https://taiko-ch.net/ip_policy/</a>）のもと制作されています。」</p>
+      <p><a href="https://github.com/netyo715/TaikoScoreTool/blob/master/README.md" target="_blank">使い方</a></p>
       <div>
         <CopyScriptButton />
         <Button variant="contained" onClick={inputScore}>スコア貼り付け</Button>
-        <Button variant="outlined">使い方</Button>
       </div>
       <div>
-        {filterDifficulty.map((checked, index) => (
-          <label key={index}>
-            <Checkbox checked={checked} onChange={() => toggleFilterDifficulty(index)} />
-            {index+1}
-          </label>
-        ))}
+        <ToggleButtonGroup color="primary">
+          {filterDifficulty.map((selected, index) => (
+            <ToggleButton selected={selected} value={index} onClick={() => toggleFilterDifficulty(index)}>
+              {"☆" + (index+1)}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
       </div>
       <div>
-        {filterCrown.map((checked, index) => (
-          <label key={index}>
-            <Checkbox checked={checked} onChange={() => toggleFilterCrown(index)} />
-            {CROWN[index]}
-          </label>
-        ))}
+        <ToggleButtonGroup color="primary">
+          {filterCrown.map((selected, index) => (
+            <ToggleButton selected={selected} value={index} onClick={() => toggleFilterCrown(index)}>
+              {<img src={CROWN_IMAGE[index]} style={{height:30}}/>}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
       </div>
       <div>
-        {filterRank.map((checked, index) => (
-          <label key={index}>
-            <Checkbox checked={checked} onChange={() => toggleFilterRank(index)} />
-            {RANK[index]}
-          </label>
-        ))}
+        <ToggleButtonGroup color="primary">
+          {filterRank.map((selected, index) => (
+            <ToggleButton selected={selected} value={index} onClick={() => toggleFilterRank(index)}>
+              {index >= 2 ? <img src={RANK_IMAGE[index-2]} style={{height:30}}/> : index==1 ? "プレイ済み" : "未プレイ"}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
       </div>
       <RadioGroup row aria-label="sort" name="sort" value={sortBy} onChange={e => setSortBy(e.target.value as any)}>
         <FormControlLabel value="id" control={<Radio />} label="選曲画面" />
@@ -206,7 +224,9 @@ function App() {
         control={<Checkbox checked={sortDescending} onChange={toggleSortDescending} />}
         label="降順にする"
       />
-      <Button variant="contained" onClick={alertRandomSong}>ランダム選曲</Button>
+      <div>
+        <Button variant="contained" onClick={alertRandomSong}>ランダム選曲</Button>
+      </div>
       <ScoreTable scoreArray={sortedScoreArray} />
     </div>
   );
