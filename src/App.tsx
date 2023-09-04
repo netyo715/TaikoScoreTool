@@ -56,7 +56,7 @@ function App() {
 
   const [filterDifficulty, setFilterDifficulty] = useState<boolean[]>(new Array(10).fill(true));
   const [filterCrown, setFilterCrown] = useState<boolean[]>(new Array(4).fill(true));
-  const [filterRank, setFilterRank] = useState<boolean[]>(new Array(9).fill(true));
+  const [filterRank, setFilterRank] = useState<boolean[]>(new Array(8).fill(true));
   const [sortBy, setSortBy] = useState<'id' | 'name' | 'crown' | 'rank' | 'difficulty'>('id');
   const [sortDescending, setSortDescending] = useState<boolean>(false);
 
@@ -92,7 +92,7 @@ function App() {
 
   useEffect(() => {
     setSortedScoreArray(scoreArray
-      .filter(song => filterDifficulty[song.difficulty-1] && filterCrown[song.crown] && filterRank[song.rank])
+      .filter(song => filterDifficulty[song.difficulty-1] && filterCrown[song.crown] && filterRank[song.rank==0 ? song.rank : song.rank-1])
       .sort((a, b) => {
         const sortMultiplier = sortDescending ? -1 : 1;
         if (sortBy === 'id') {
@@ -175,7 +175,7 @@ function App() {
 
   const alertRandomSong = () => {
     const song = sortedScoreArray[Math.floor(Math.random() * sortedScoreArray.length)];
-    alert(`${song.name} クリア: ${song.crown} ランク: ${song.rank}`);
+    alert(`${song.name}\nクリア: ${CROWN[song.crown]}\nランク: ${song.rank==0 ? "ランクなし" : RANK[song.rank-1]}`);
   };
 
   return (
@@ -188,9 +188,18 @@ function App() {
       </div>
       <div>
         <ToggleButtonGroup color="primary">
-          {filterDifficulty.map((selected, index) => (
+          {filterDifficulty.slice(0, 5).map((selected, index) => (
             <ToggleButton selected={selected} value={index} onClick={() => toggleFilterDifficulty(index)}>
               {"☆" + (index+1)}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+      </div>
+      <div>
+        <ToggleButtonGroup color="primary">
+          {filterDifficulty.slice(5, 10).map((selected, index) => (
+            <ToggleButton selected={selected} value={index+5} onClick={() => toggleFilterDifficulty(index+5)}>
+              {"☆" + (index+6)}
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
@@ -206,9 +215,18 @@ function App() {
       </div>
       <div>
         <ToggleButtonGroup color="primary">
-          {filterRank.map((selected, index) => (
+          {filterRank.slice(0, 4).map((selected, index) => (
             <ToggleButton selected={selected} value={index} onClick={() => toggleFilterRank(index)}>
-              {index >= 2 ? <img src={RANK_IMAGE[index-2]} style={{height:30}}/> : index==1 ? "プレイ済み" : "未プレイ"}
+              {index >= 1 ? <img src={RANK_IMAGE[index-1]} style={{height:30}}/> : "ランクなし"}
+            </ToggleButton>
+          ))}
+        </ToggleButtonGroup>
+      </div>
+      <div>
+        <ToggleButtonGroup color="primary">
+          {filterRank.slice(4, 8).map((selected, index) => (
+            <ToggleButton selected={selected} value={index+4} onClick={() => toggleFilterRank(index+4)}>
+              <img src={RANK_IMAGE[index+3]} style={{height:30}}/>
             </ToggleButton>
           ))}
         </ToggleButtonGroup>
