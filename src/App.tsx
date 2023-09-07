@@ -80,16 +80,31 @@ function App() {
     setSongInfoArray(_songInfoArray);
 
     // ブラウザに保存済みのデータ読み込み
-    const storageData = localStorage.getItem("songList");
-    if (storageData){
-      const parsedJson = JSON.parse(storageData)
+    const storageSongList = localStorage.getItem("songList");
+    if (storageSongList){
+      const parsedJson = JSON.parse(storageSongList)
       setScoreArray(parsedJson);
       console.log("get localstorage score.");
     }else{
       console.log("localstorage score not found.");
     }
+
+    // フィルター設定読み込み
+    const storageFilterDifficulty = localStorage.getItem("filterDifficulty");
+    if (storageFilterDifficulty){
+      setFilterDifficulty(JSON.parse(storageFilterDifficulty));
+    }
+    const storageFilterCrown = localStorage.getItem("filterCrown");
+    if (storageFilterCrown){
+      setFilterCrown(JSON.parse(storageFilterCrown));
+    }
+    const storageFilterRank = localStorage.getItem("filterRank");
+    if (storageFilterRank){
+      setFilterRank(JSON.parse(storageFilterRank));
+    }
   }, []);
 
+  // フィルター/ソート変更時処理
   useEffect(() => {
     setSortedScoreArray(scoreArray
       .filter(song => filterDifficulty[song.difficulty-1] && filterCrown[song.crown] && filterRank[song.rank==0 ? song.rank : song.rank-1])
@@ -154,18 +169,21 @@ function App() {
     const updatedFilters = [...filterDifficulty];
     updatedFilters[index] = !updatedFilters[index];
     setFilterDifficulty(updatedFilters);
+    localStorage.setItem("filterDifficulty", JSON.stringify(updatedFilters));
   };
 
   const toggleFilterCrown = (index: number) => {
     const updatedFilters = [...filterCrown];
     updatedFilters[index] = !updatedFilters[index];
     setFilterCrown(updatedFilters);
+    localStorage.setItem("filterCrown", JSON.stringify(updatedFilters));
   };
 
   const toggleFilterRank = (index: number) => {
     const updatedFilters = [...filterRank];
     updatedFilters[index] = !updatedFilters[index];
     setFilterRank(updatedFilters);
+    localStorage.setItem("filterRank", JSON.stringify(updatedFilters));
   };
 
   const toggleSortDescending = () => {
@@ -180,8 +198,9 @@ function App() {
 
   return (
     <div className="App">
+      <h1>太鼓の達人 スコア管理ツール(開発中)</h1>
       <p>「このコンテンツはファンメイドコンテンツです。ファンメイドコンテンツポリシー（<a href="https://taiko-ch.net/ip_policy/">https://taiko-ch.net/ip_policy/</a>）のもと制作されています。」</p>
-      <p><a href="https://github.com/netyo715/TaikoScoreTool/blob/master/README.md" target="_blank">使い方</a></p>
+      <p><a href="https://github.com/netyo715/TaikoScoreTool/blob/master/README.md" target="_blank">使い方/機能要望等</a></p>
       <div>
         <CopyScriptButton />
         <Button variant="contained" onClick={inputScore}>スコア貼り付け</Button>
