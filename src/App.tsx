@@ -1,21 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
-import ScoreTable from './ScoreTable';
 import SongInfoJson from "./songInfo.json";
-import { Button, Checkbox, FormControlLabel, Radio, RadioGroup, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { Button } from '@mui/material';
 import CopyScriptButton from './CopyScriptButton';
 
-import crown0 from "./image/crown_0.png";
-import crown1 from  "./image/crown_1.png";
-import crown2 from  "./image/crown_2.png";
-import crown3 from  "./image/crown_3.png";
-import rank2 from "./image/rank_2.png";
-import rank3 from "./image/rank_3.png";
-import rank4 from "./image/rank_4.png";
-import rank5 from "./image/rank_5.png";
-import rank6 from "./image/rank_6.png";
-import rank7 from "./image/rank_7.png";
-import rank8 from "./image/rank_8.png";
+import AllSongTab from './AllSongTab';
 
 type JsonSongScore = {
   name: string;
@@ -43,22 +32,9 @@ type SongInfo = {
   difficulty: number;
 }
 
-const CROWN = ["未クリア", "クリア", "フルコンボ", "ドンダフルコンボ"];
-const RANK = ["ランクなし", "粋1", "粋2", "粋3", "雅1", "雅2", "雅3", "極"];
-
-const CROWN_IMAGE = [crown0, crown1, crown2, crown3];
-const RANK_IMAGE = [rank2, rank3, rank4, rank5, rank6, rank7, rank8];
-
 function App() {
   const [scoreArray, setScoreArray] = useState<SongScore[]>([]);
-  const [sortedScoreArray, setSortedScoreArray] = useState<SongScore[]>([]);
   const [songInfoArray, setSongInfoArray] = useState<SongInfo[]>([]);
-
-  const [filterDifficulty, setFilterDifficulty] = useState<boolean[]>(new Array(10).fill(true));
-  const [filterCrown, setFilterCrown] = useState<boolean[]>(new Array(4).fill(true));
-  const [filterRank, setFilterRank] = useState<boolean[]>(new Array(8).fill(true));
-  const [sortBy, setSortBy] = useState<'id' | 'name' | 'crown' | 'rank' | 'difficulty'>('id');
-  const [sortDescending, setSortDescending] = useState<boolean>(false);
 
   // 初期化時処理
   useEffect(() => {
@@ -66,8 +42,8 @@ function App() {
     var _songInfoArray: SongInfo[] = [];
     SongInfoJson.forEach((value) => {
       var genre = [value.genre1];
-      if (value.genre2 != 0){genre.push(value.genre2);}
-      if (value.genre3 != 0){genre.push(value.genre3);}
+      if (value.genre2 !== 0){genre.push(value.genre2);}
+      if (value.genre3 !== 0){genre.push(value.genre3);}
       _songInfoArray.push({
         id: value.id,
         name: value.songName,
@@ -88,41 +64,7 @@ function App() {
     }else{
       console.log("localstorage score not found.");
     }
-
-    // フィルター設定読み込み
-    const storageFilterDifficulty = localStorage.getItem("filterDifficulty");
-    if (storageFilterDifficulty){
-      setFilterDifficulty(JSON.parse(storageFilterDifficulty));
-    }
-    const storageFilterCrown = localStorage.getItem("filterCrown");
-    if (storageFilterCrown){
-      setFilterCrown(JSON.parse(storageFilterCrown));
-    }
-    const storageFilterRank = localStorage.getItem("filterRank");
-    if (storageFilterRank){
-      setFilterRank(JSON.parse(storageFilterRank));
-    }
   }, []);
-
-  // フィルター/ソート変更時処理
-  useEffect(() => {
-    setSortedScoreArray(scoreArray
-      .filter(song => filterDifficulty[song.difficulty-1] && filterCrown[song.crown] && filterRank[song.rank==0 ? song.rank : song.rank-1])
-      .sort((a, b) => {
-        const sortMultiplier = sortDescending ? -1 : 1;
-        if (sortBy === 'id') {
-          return sortMultiplier * (a.id - b.id);
-        } else if (sortBy === 'name') {
-          return sortMultiplier * a.name.localeCompare(b.name);
-        } else if (sortBy === 'crown') {
-          return sortMultiplier * (a.crown - b.crown);
-        } else if (sortBy === 'difficulty') {
-          return sortMultiplier * (a.difficulty - b.difficulty);
-        } else {
-          return sortMultiplier * (a.rank - b.rank);
-        }
-      }));
-  }, [scoreArray, filterDifficulty, filterCrown, filterRank, sortBy, sortDescending]);
 
   // 入力からデータ読み込み
   const inputScore = () => {
@@ -134,7 +76,7 @@ function App() {
       inputScoreArray[i].forEach((value) => {
         const idx = value.isUra ? 1: 0;
         // ナムコ以外のエンジェルドリームはアイマス版として扱う
-        if(i!=5 && value.name=="エンジェル ドリーム"){
+        if(i!==5 && value.name==="エンジェル ドリーム"){
           value.name += "(アイマス)";
         }
         inputScoreMap[idx][value.name] = value;
@@ -164,107 +106,16 @@ function App() {
     console.log("set localstorage score");
   }
 
-  // 以下ソート/フィルター
-  const toggleFilterDifficulty = (index: number) => {
-    const updatedFilters = [...filterDifficulty];
-    updatedFilters[index] = !updatedFilters[index];
-    setFilterDifficulty(updatedFilters);
-    localStorage.setItem("filterDifficulty", JSON.stringify(updatedFilters));
-  };
-
-  const toggleFilterCrown = (index: number) => {
-    const updatedFilters = [...filterCrown];
-    updatedFilters[index] = !updatedFilters[index];
-    setFilterCrown(updatedFilters);
-    localStorage.setItem("filterCrown", JSON.stringify(updatedFilters));
-  };
-
-  const toggleFilterRank = (index: number) => {
-    const updatedFilters = [...filterRank];
-    updatedFilters[index] = !updatedFilters[index];
-    setFilterRank(updatedFilters);
-    localStorage.setItem("filterRank", JSON.stringify(updatedFilters));
-  };
-
-  const toggleSortDescending = () => {
-    setSortDescending(prev => !prev);
-  };
-  // 以上ソート/フィルター
-
-  const alertRandomSong = () => {
-    const song = sortedScoreArray[Math.floor(Math.random() * sortedScoreArray.length)];
-    alert(`${song.name}\nクリア: ${CROWN[song.crown]}\nランク: ${song.rank==0 ? "ランクなし" : RANK[song.rank-1]}`);
-  };
-
   return (
-    <div className="App">
+    <div id="App">
       <h1>太鼓の達人 スコア管理ツール(開発中)</h1>
-      <p>「このコンテンツはファンメイドコンテンツです。ファンメイドコンテンツポリシー（<a href="https://taiko-ch.net/ip_policy/">https://taiko-ch.net/ip_policy/</a>）のもと制作されています。」</p>
+      <p>このコンテンツはファンメイドコンテンツです。<br/>ファンメイドコンテンツポリシー（<a href="https://taiko-ch.net/ip_policy/">https://taiko-ch.net/ip_policy/</a>）のもと制作されています。</p>
       <p><a href="https://github.com/netyo715/TaikoScoreTool/blob/master/README.md" target="_blank">使い方/機能要望等</a></p>
       <div>
         <CopyScriptButton />
         <Button variant="contained" onClick={inputScore}>スコア貼り付け</Button>
       </div>
-      <div>
-        <ToggleButtonGroup color="primary">
-          {filterDifficulty.slice(0, 5).map((selected, index) => (
-            <ToggleButton selected={selected} value={index} onClick={() => toggleFilterDifficulty(index)}>
-              {"☆" + (index+1)}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-      </div>
-      <div>
-        <ToggleButtonGroup color="primary">
-          {filterDifficulty.slice(5, 10).map((selected, index) => (
-            <ToggleButton selected={selected} value={index+5} onClick={() => toggleFilterDifficulty(index+5)}>
-              {"☆" + (index+6)}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-      </div>
-      <div>
-        <ToggleButtonGroup color="primary">
-          {filterCrown.map((selected, index) => (
-            <ToggleButton selected={selected} value={index} onClick={() => toggleFilterCrown(index)}>
-              {<img src={CROWN_IMAGE[index]} style={{height:30}}/>}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-      </div>
-      <div>
-        <ToggleButtonGroup color="primary">
-          {filterRank.slice(0, 4).map((selected, index) => (
-            <ToggleButton selected={selected} value={index} onClick={() => toggleFilterRank(index)}>
-              {index >= 1 ? <img src={RANK_IMAGE[index-1]} style={{height:30}}/> : "ランクなし"}
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-      </div>
-      <div>
-        <ToggleButtonGroup color="primary">
-          {filterRank.slice(4, 8).map((selected, index) => (
-            <ToggleButton selected={selected} value={index+4} onClick={() => toggleFilterRank(index+4)}>
-              <img src={RANK_IMAGE[index+3]} style={{height:30}}/>
-            </ToggleButton>
-          ))}
-        </ToggleButtonGroup>
-      </div>
-      <RadioGroup row aria-label="sort" name="sort" value={sortBy} onChange={e => setSortBy(e.target.value as any)}>
-        <FormControlLabel value="id" control={<Radio />} label="選曲画面" />
-        <FormControlLabel value="name" control={<Radio />} label="曲名" />
-        <FormControlLabel value="difficulty" control={<Radio />} label="難易度" />
-        <FormControlLabel value="crown" control={<Radio />} label="王冠" />
-        <FormControlLabel value="rank" control={<Radio />} label="ランク" />
-      </RadioGroup>
-      <FormControlLabel
-        control={<Checkbox checked={sortDescending} onChange={toggleSortDescending} />}
-        label="降順にする"
-      />
-      <div>
-        <Button variant="contained" onClick={alertRandomSong}>ランダム選曲</Button>
-      </div>
-      <ScoreTable scoreArray={sortedScoreArray} />
+      <AllSongTab scoreArray={scoreArray}/>
     </div>
   );
 }
