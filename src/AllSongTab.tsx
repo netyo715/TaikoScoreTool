@@ -36,12 +36,12 @@ const RANK_IMAGE = [rank2, rank3, rank4, rank5, rank6, rank7, rank8];
 
 const AllSongTab: React.FC<Props> = (props) => {
   const [sortedScoreArray, setSortedScoreArray] = useState<SongScore[]>([]);
-
   const [filterDifficulty, setFilterDifficulty] = useState<boolean[]>(new Array(10).fill(true));
   const [filterCrown, setFilterCrown] = useState<boolean[]>(new Array(4).fill(true));
   const [filterRank, setFilterRank] = useState<boolean[]>(new Array(8).fill(true));
   const [sortBy, setSortBy] = useState<'id' | 'name' | 'crown' | 'rank' | 'difficulty'>('id');
   const [sortDescending, setSortDescending] = useState<boolean>(false);
+  const [filterSouuchi, setFilterSouuchi] = useState<boolean>(false);
 
   // 初期化時処理
   useEffect(() => {
@@ -63,7 +63,7 @@ const AllSongTab: React.FC<Props> = (props) => {
   // フィルター/ソート変更時処理
   useEffect(() => {
     setSortedScoreArray(props.scoreArray
-      .filter(song => filterDifficulty[song.difficulty-1] && filterCrown[song.crown] && filterRank[song.rank===0 ? song.rank : song.rank-1])
+      .filter(song => filterDifficulty[song.difficulty-1] && filterCrown[song.crown] && filterRank[song.rank===0 ? song.rank : song.rank-1] && !(!filterSouuchi && song.name.startsWith("【双打】")))
       .sort((a, b) => {
         const sortMultiplier = sortDescending ? -1 : 1;
         if (sortBy === 'id') {
@@ -78,7 +78,7 @@ const AllSongTab: React.FC<Props> = (props) => {
           return sortMultiplier * (a.rank - b.rank);
         }
       }));
-  }, [filterDifficulty, filterCrown, filterRank, sortBy, sortDescending]);
+  }, [props.scoreArray, filterDifficulty, filterCrown, filterRank, sortBy, sortDescending, filterSouuchi]);
 
   // 以下ソート/フィルター
   const toggleFilterDifficulty = (index: number) => {
@@ -104,6 +104,10 @@ const AllSongTab: React.FC<Props> = (props) => {
 
   const toggleSortDescending = () => {
     setSortDescending(prev => !prev);
+  };
+
+  const toggleFilterSouuchi = () => {
+    setFilterSouuchi(prev => !prev);
   };
   // 以上ソート/フィルター
 
@@ -169,6 +173,10 @@ const AllSongTab: React.FC<Props> = (props) => {
       <FormControlLabel
         control={<Checkbox checked={sortDescending} onChange={toggleSortDescending} />}
         label="降順にする"
+      />
+      <FormControlLabel
+        control={<Checkbox checked={filterSouuchi} onChange={toggleFilterSouuchi} />}
+        label="双打譜面を表示する"
       />
       <div>
         <Button variant="contained" onClick={alertRandomSong}>ランダム選曲</Button>
