@@ -7,6 +7,8 @@ import TableCell from '@mui/material/TableCell';
 import TableBody from '@mui/material/TableBody';
 import Paper from '@mui/material/Paper';
 
+import "./ScoreTable.css";
+
 import crown0 from "./image/crown_0.png";
 import crown1 from  "./image/crown_1.png";
 import crown2 from  "./image/crown_2.png";
@@ -51,11 +53,11 @@ const ScoreTable: React.FC<Props> = (props) => {
           </TableHead>
           <TableBody>
             {props.scoreArray.map(song => (
-              <TableRow>
+              <TableRow className={"genre"+song.mainGenre}>
                 <TableCell>{song.name}</TableCell>
                 <TableCell>{"☆" + song.difficulty}</TableCell>
-                <TableCell><img src={CROWN_IMAGE[song.crown]} style={{height:30}}/></TableCell>
-                <TableCell>{(song.rank >= 2) ? <img src={RANK_IMAGE[song.rank-2]} style={{height:30}}/> : <></>}</TableCell>
+                <TableCell><img src={CROWN_IMAGE[song.crown]} alt={"crown"+song.crown} style={{height:30}}/></TableCell>
+                <TableCell>{(song.rank >= 2) ? <img src={RANK_IMAGE[song.rank-2]} alt={"rank"+(song.rank-2)} style={{height:30}}/> : <></>}</TableCell>
               </TableRow>
             ))}
           </TableBody>
