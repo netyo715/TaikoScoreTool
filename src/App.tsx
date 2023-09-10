@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import SongInfoJson from "./songInfo.json";
-import { Button } from '@mui/material';
+import { Button, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import CopyScriptButton from './CopyScriptButton';
 
 import AllSongTab from './AllSongTab';
@@ -34,7 +34,9 @@ type SongInfo = {
 
 function App() {
   const [scoreArray, setScoreArray] = useState<SongScore[]>([]);
+  const [scoreMap, setScoreMap] = useState<{[key:string]: SongScore}>({});
   const [songInfoArray, setSongInfoArray] = useState<SongInfo[]>([]);
+  const [displayTabIndex, setDisplayTabIndex] = useState<number>(0);
 
   // 初期化時処理
   useEffect(() => {
@@ -54,17 +56,25 @@ function App() {
       });
     });
     setSongInfoArray(_songInfoArray);
+    loadLocalStorageScore();
+  }, []);
 
+  const loadLocalStorageScore  = () => {
     // ブラウザに保存済みのデータ読み込み
     const storageSongList = localStorage.getItem("songList");
-    if (storageSongList){
-      const parsedJson = JSON.parse(storageSongList)
-      setScoreArray(parsedJson);
-      console.log("get localstorage score.");
-    }else{
+    if (!storageSongList){
       console.log("localstorage score not found.");
+      return;
     }
-  }, []);
+    const parsedJson = JSON.parse(storageSongList)
+    var _scoreMap: {[key:string]: SongScore} = {};
+    parsedJson.forEach((song: SongScore) => {
+      _scoreMap[song.name] = song;
+    });
+    setScoreArray(parsedJson);
+    setScoreMap(_scoreMap);
+    console.log("get localstorage score.");
+  }
 
   // 入力からデータ読み込み
   const inputScore = () => {
@@ -101,7 +111,12 @@ function App() {
         rank: rank,
       });
     });
+    var _scoreMap: {[key:string]: SongScore} = {};
+    _scoreArray.forEach((song: SongScore) => {
+      _scoreMap[song.name] = song;
+    });
     setScoreArray(_scoreArray);
+    setScoreMap(_scoreMap);
     localStorage.setItem("songList", JSON.stringify(_scoreArray));
     console.log("set localstorage score");
   }
@@ -115,7 +130,16 @@ function App() {
         <CopyScriptButton />
         <Button variant="contained" onClick={inputScore}>スコア貼り付け</Button>
       </div>
-      <AllSongTab scoreArray={scoreArray}/>
+      <ToggleButtonGroup color="primary">
+        <ToggleButton selected={displayTabIndex===0} value={0} onClick={() => setDisplayTabIndex(0)}>全曲表示</ToggleButton>
+        <ToggleButton selected={displayTabIndex===1} value={1} onClick={() => setDisplayTabIndex(1)}>☆10難易度表</ToggleButton>
+      </ToggleButtonGroup>
+      <div style={{display: displayTabIndex===0 ? "block" : "none"}}>
+        <AllSongTab scoreArray={scoreArray}/>
+      </div>
+      <div style={{display: displayTabIndex===1 ? "block" : "none"}}>
+        <p>☆10難易度表</p>
+      </div>
     </div>
   );
 }
