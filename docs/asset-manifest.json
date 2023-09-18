@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/TaikoScoreTool/static/css/main.a34a6a4c.css",
-    "main.js": "/TaikoScoreTool/static/js/main.28d1a146.js",
+    "main.css": "/TaikoScoreTool/static/css/main.6b3b1635.css",
+    "main.js": "/TaikoScoreTool/static/js/main.1fb39017.js",
     "static/media/rank_7.png": "/TaikoScoreTool/static/media/rank_7.4d0b4441df73b6f87a61.png",
     "index.html": "/TaikoScoreTool/index.html",
-    "main.a34a6a4c.css.map": "/TaikoScoreTool/static/css/main.a34a6a4c.css.map",
-    "main.28d1a146.js.map": "/TaikoScoreTool/static/js/main.28d1a146.js.map"
+    "main.6b3b1635.css.map": "/TaikoScoreTool/static/css/main.6b3b1635.css.map",
+    "main.1fb39017.js.map": "/TaikoScoreTool/static/js/main.1fb39017.js.map"
   },
   "entrypoints": [
-    "static/css/main.a34a6a4c.css",
-    "static/js/main.28d1a146.js"
+    "static/css/main.6b3b1635.css",
+    "static/js/main.1fb39017.js"
   ]
 }

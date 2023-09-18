@@ -24,16 +24,6 @@ import rank8 from "./image/rank_8.png";
 const CROWN_IMAGE = [crown0, crown1, crown2, crown3];
 const RANK_IMAGE = [rank2, rank3, rank4, rank5, rank6, rank7, rank8];
 
-interface SongScore {
-  id: number;
-  name: string;
-  mainGenre: number;
-  genre: number[];
-  difficulty: number;
-  crown: number;
-  rank: number;
-};
-
 interface Props {
   scoreArray: SongScore[];
 };
