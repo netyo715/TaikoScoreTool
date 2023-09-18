@@ -6,32 +6,6 @@ import CopyScriptButton from './CopyScriptButton';
 
 import AllSongTab from './AllSongTab';
 
-type JsonSongScore = {
-  name: string;
-  isUra: boolean;
-  crown: number;
-  rank: number;
-}
-
-type SongScore = {
-  id: number;
-  name: string;
-  mainGenre: number;
-  genre: number[];
-  difficulty: number;
-  crown: number;
-  rank: number;
-}
-
-type SongInfo = {
-  id: number;
-  name: string;
-  isUra: boolean;
-  mainGenre: number;
-  genre: number[];
-  difficulty: number;
-}
-
 function App() {
   const [scoreArray, setScoreArray] = useState<SongScore[]>([]);
   const [scoreMap, setScoreMap] = useState<{[key:string]: SongScore}>({});
@@ -47,8 +21,9 @@ function App() {
       if (value.genre2 !== 0){genre.push(value.genre2);}
       if (value.genre3 !== 0){genre.push(value.genre3);}
       _songInfoArray.push({
+        viewId: value.viewId,
         id: value.id,
-        name: value.songName,
+        name: value.name,
         isUra: value.isUra,
         mainGenre: value.mainGenre,
         genre: genre,
@@ -102,6 +77,7 @@ function App() {
         rank = inputScoreMap[idx][value.name].rank;
       }
       _scoreArray.push({
+        viewId: value.viewId,
         id: value.id,
         name: value.name + (value.isUra ? " (裏)" : ""),
         difficulty: value.difficulty,

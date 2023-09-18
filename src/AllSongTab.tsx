@@ -14,16 +14,6 @@ import rank6 from "./image/rank_6.png";
 import rank7 from "./image/rank_7.png";
 import rank8 from "./image/rank_8.png";
 
-interface SongScore {
-  id: number;
-  name: string;
-  mainGenre: number;
-  genre: number[];
-  difficulty: number;
-  crown: number;
-  rank: number;
-};
-
 interface Props {
   scoreArray: SongScore[];
 };
@@ -39,7 +29,7 @@ const AllSongTab: React.FC<Props> = (props) => {
   const [filterDifficulty, setFilterDifficulty] = useState<boolean[]>(new Array(10).fill(true));
   const [filterCrown, setFilterCrown] = useState<boolean[]>(new Array(4).fill(true));
   const [filterRank, setFilterRank] = useState<boolean[]>(new Array(8).fill(true));
-  const [sortBy, setSortBy] = useState<'id' | 'name' | 'crown' | 'rank' | 'difficulty'>('id');
+  const [sortBy, setSortBy] = useState<'viewId' | 'name' | 'crown' | 'rank' | 'difficulty'>('viewId');
   const [sortDescending, setSortDescending] = useState<boolean>(false);
   const [filterSouuchi, setFilterSouuchi] = useState<boolean>(false);
 
@@ -66,8 +56,8 @@ const AllSongTab: React.FC<Props> = (props) => {
       .filter(song => filterDifficulty[song.difficulty-1] && filterCrown[song.crown] && filterRank[song.rank===0 ? song.rank : song.rank-1] && !(!filterSouuchi && song.name.startsWith("【双打】")))
       .sort((a, b) => {
         const sortMultiplier = sortDescending ? -1 : 1;
-        if (sortBy === 'id') {
-          return sortMultiplier * (a.id - b.id);
+        if (sortBy === 'viewId') {
+          return sortMultiplier * (a.viewId - b.viewId);
         } else if (sortBy === 'name') {
           return sortMultiplier * a.name.localeCompare(b.name);
         } else if (sortBy === 'crown') {
@@ -164,7 +154,7 @@ const AllSongTab: React.FC<Props> = (props) => {
         </ToggleButtonGroup>
       </div>
       <RadioGroup row aria-label="sort" name="sort" value={sortBy} onChange={e => setSortBy(e.target.value as any)}>
-        <FormControlLabel value="id" control={<Radio />} label="選曲画面" />
+        <FormControlLabel value="viewId" control={<Radio />} label="選曲画面" />
         <FormControlLabel value="name" control={<Radio />} label="曲名" />
         <FormControlLabel value="difficulty" control={<Radio />} label="難易度" />
         <FormControlLabel value="crown" control={<Radio />} label="王冠" />
