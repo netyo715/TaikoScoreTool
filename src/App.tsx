@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import SongInfoJson from "./songInfo.json";
+import ExSongInfoJson from "./exSongInfo.json";
 import { Button, ToggleButton, ToggleButtonGroup } from '@mui/material';
 import CopyScriptButton from './CopyScriptButton';
 
@@ -8,8 +9,9 @@ import AllSongTab from './AllSongTab';
 
 function App() {
   const [scoreArray, setScoreArray] = useState<SongScore[]>([]);
-  const [scoreMap, setScoreMap] = useState<{[key:string]: SongScore}>({});
+  const [allScoreMap, setAllScoreMap] = useState<{[key:number]: SongScore}>({});
   const [songInfoArray, setSongInfoArray] = useState<SongInfo[]>([]);
+  const [exSongInfoArray, setExSongInfoArray] = useState<SongInfo[]>([]);
   const [displayTabIndex, setDisplayTabIndex] = useState<number>(0);
 
   // 初期化時処理
@@ -31,6 +33,22 @@ function App() {
       });
     });
     setSongInfoArray(_songInfoArray);
+    var _exSongInfoArray: SongInfo[] = [];
+    ExSongInfoJson.forEach((value) => {
+      var genre = [value.genre1];
+      if (value.genre2 !== 0){genre.push(value.genre2);}
+      if (value.genre3 !== 0){genre.push(value.genre3);}
+      _exSongInfoArray.push({
+        viewId: value.viewId,
+        id: value.id,
+        name: value.name,
+        isUra: value.isUra,
+        mainGenre: value.mainGenre,
+        genre: genre,
+        difficulty: value.difficulty,
+      });
+    });
+    setExSongInfoArray(_exSongInfoArray);
     loadLocalStorageScore();
   }, []);
 
@@ -41,14 +59,18 @@ function App() {
       console.log("localstorage score not found.");
       return;
     }
-    const parsedJson = JSON.parse(storageSongList)
-    var _scoreMap: {[key:string]: SongScore} = {};
-    parsedJson.forEach((song: SongScore) => {
-      _scoreMap[song.name] = song;
-    });
-    setScoreArray(parsedJson);
-    setScoreMap(_scoreMap);
+    const parsedSongList = JSON.parse(storageSongList);
+    setScoreArray(parsedSongList);
     console.log("get localstorage score.");
+
+    const storageAllScoreMap = localStorage.getItem("allScoreMap");
+    if (!storageAllScoreMap){
+      console.log("localstorage score map not found.");
+      return;
+    }
+    const parsedAllScoreMap = JSON.parse(storageAllScoreMap);
+    setAllScoreMap(parsedAllScoreMap);
+    console.log("get localstorage score map.");
   }
 
   // 入力からデータ読み込み
@@ -77,6 +99,7 @@ function App() {
         rank = inputScoreMap[idx][value.name].rank;
       }
       _scoreArray.push({
+        type: "SongScore",
         viewId: value.viewId,
         id: value.id,
         name: value.name + (value.isUra ? " (裏)" : ""),
@@ -87,13 +110,27 @@ function App() {
         rank: rank,
       });
     });
-    var _scoreMap: {[key:string]: SongScore} = {};
+    var _scoreMap: {[key:number]: SongScore} = {};
     _scoreArray.forEach((song: SongScore) => {
-      _scoreMap[song.name] = song;
+      _scoreMap[song.id] = song;
+    });
+    exSongInfoArray.forEach((value) => {
+      _scoreMap[value.id] = {
+        type: "SongScore",
+        viewId: value.viewId,
+        id: value.id,
+        name: value.name + (value.isUra ? " (裏)" : ""),
+        difficulty: value.difficulty,
+        mainGenre: value.mainGenre,
+        genre: value.genre,
+        crown: 0,
+        rank: 0,
+      }
     });
     setScoreArray(_scoreArray);
-    setScoreMap(_scoreMap);
+    setAllScoreMap(_scoreMap);
     localStorage.setItem("songList", JSON.stringify(_scoreArray));
+    localStorage.setItem("allScoreMap", JSON.stringify(_scoreMap));
     console.log("set localstorage score");
   }
 

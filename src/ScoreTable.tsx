@@ -25,7 +25,7 @@ const CROWN_IMAGE = [crown0, crown1, crown2, crown3];
 const RANK_IMAGE = [rank2, rank3, rank4, rank5, rank6, rank7, rank8];
 
 interface Props {
-  scoreArray: SongScore[];
+  scoreArray: (SongScore | Partition)[];
 };
 
 const ScoreTable: React.FC<Props> = (props) => {
@@ -42,14 +42,27 @@ const ScoreTable: React.FC<Props> = (props) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {props.scoreArray.map(song => (
-              <TableRow className={"genre"+song.mainGenre}>
-                <TableCell>{song.name}</TableCell>
-                <TableCell>{"☆" + song.difficulty}</TableCell>
-                <TableCell><img src={CROWN_IMAGE[song.crown]} alt={"crown"+song.crown} style={{height:30}}/></TableCell>
-                <TableCell>{(song.rank >= 2) ? <img src={RANK_IMAGE[song.rank-2]} alt={"rank"+(song.rank-2)} style={{height:30}}/> : <></>}</TableCell>
-              </TableRow>
-            ))}
+            {props.scoreArray.map(song => {
+              if (song.type === "SongScore"){
+                return (
+                <TableRow className={"genre"+song.mainGenre}>
+                  <TableCell>{song.name}</TableCell>
+                  <TableCell>{"☆" + song.difficulty}</TableCell>
+                  <TableCell><img src={CROWN_IMAGE[song.crown]} alt={"crown"+song.crown} style={{height:30}}/></TableCell>
+                  <TableCell>{(song.rank >= 2) ? <img src={RANK_IMAGE[song.rank-2]} alt={"rank"+(song.rank-2)} style={{height:30}}/> : <></>}</TableCell>
+                </TableRow>
+                )
+              }else{
+                return (
+                  <TableRow>
+                    <TableCell>{song.name}</TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                  )
+              }
+            })}
           </TableBody>
         </Table>
       </TableContainer>

@@ -6,6 +6,7 @@ type JsonSongScore = {
 }
 
 type SongScore = {
+  type: "SongScore";
   viewId: number;
   id: number;
   name: string;
@@ -24,4 +25,9 @@ type SongInfo = {
   mainGenre: number;
   genre: number[];
   difficulty: number;
+}
+
+type Partition = {
+  type: "Partition";
+  name: number;
 }
